@@ -23,7 +23,10 @@ internal fun ClockTab(config: TodayConfig, update: ((TodayConfig) -> TodayConfig
         if (clock.hourFormat != HourFormat.H24) {
             SwitchRow("Show AM/PM", clock.showAmPm, { v -> edit { it.copy(showAmPm = v) } })
         }
-        SliderRow("Size", clock.timeSizeSp, 24..96, { v -> edit { it.copy(timeSizeSp = v) } })
+        SwitchRow("Fit to widget", clock.autoSize, { v -> edit { it.copy(autoSize = v) } }, subtitle = "Sizes the time to fill its space")
+        if (!clock.autoSize) {
+            SliderRow("Size", clock.timeSizeSp, 24..120, { v -> edit { it.copy(timeSizeSp = v) } })
+        }
         ChoiceRow("Font", FontChoice.entries, clock.font, { it.label }) { f -> edit { it.copy(font = f) } }
     }
     SettingsGroup("Date") {

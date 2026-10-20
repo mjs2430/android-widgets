@@ -5,11 +5,16 @@ An Android app (minSdk 31) that hosts a collection of customizable home screen w
 ## Widgets
 
 **Today**: a customizable take on Pixel's At a Glance.
-- **Clock**: 12/24h, leading zero, AM/PM, date format, size, font. Tap opens alarms or any app you choose.
-- **Next event**: reads the calendars you select, with a look-ahead window and an all-day toggle. Tap opens the event, your calendar, or any app.
-- **Weather**: current temp, condition, high/low, hourly and daily strips, °F/°C. Uses your current location or a city you pick. Tap opens any weather app.
+- **Clock**: 12/24h, leading zero, AM/PM, date format, font; sized automatically to fill its space (or a fixed size). Tap opens alarms or any app you choose.
+- **Events**: upcoming events from the calendars you select, as a list one event tall: swipe it up and down to see the next ones, and tap an event to open it.
+- **Weather**: place, condition, temperature, high/low, and an hourly (every 2 hours, from the next full hour) or daily forecast (tap the forecast to switch). Uses your current location or a city you pick.
 - **Style**: liquid glass, soft glass, transparent, solid, gradient or Material You, plus opacity, tint, corner radius, padding, text color and font.
-- **Layout**: stacked, side by side or compact; left or centered; sections can be reordered and hidden.
+- **Layouts**: each one fixes placement and alignment.
+  - *Split*: clock and today's weather share a row; events and the forecast sit together in a row below (best at 4×2 or taller).
+  - *Stacked*: large centered clock over the weather, events on their own card (best at 4×3).
+  - *Compact*: clock and today's weather (right-aligned) in one row, events underneath, no forecast.
+
+  Content scales and drops to fit the widget's size rather than being clipped.
 
 ## Project layout
 
@@ -26,7 +31,8 @@ app/src/main/java/com/sassoapps/widgets/
     weather/            WeatherProvider interface, MET Norway implementation, cache
     location/           device location (foreground only) and city search
     ui/                 shared Compose settings rows, app picker, live Glance preview
-  widgets/today/        the Today widget: config model, Glance content, sections,
+  widgets/today/        the Today widget: config model, layouts (TodayContent), sizing
+                        (TodayMetrics), on-widget taps (TodayUiState), sections,
                         settings screen, refresh scheduling
 ```
 

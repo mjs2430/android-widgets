@@ -63,7 +63,7 @@ fun TodayConfigScreen(viewModel: TodayConfigViewModel, onDone: () -> Unit) {
             return@Scaffold
         }
         Column(Modifier.fillMaxSize().padding(padding)) {
-            LivePreview(current, data ?: TodayData(System.currentTimeMillis(), true, null, null, null), viewModel.appWidgetId)
+            LivePreview(current, data ?: TodayData(System.currentTimeMillis(), true, emptyList(), null, null), viewModel.appWidgetId)
             PrimaryScrollableTabRow(selectedTabIndex = tab, edgePadding = 16.dp) {
                 ConfigTab.entries.forEachIndexed { index, it ->
                     Tab(selected = tab == index, onClick = { tab = index }, text = { Text(it.label) })

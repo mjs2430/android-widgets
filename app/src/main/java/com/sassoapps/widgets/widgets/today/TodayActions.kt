@@ -7,6 +7,7 @@ import android.provider.AlarmClock
 import androidx.core.net.toUri
 import com.sassoapps.widgets.MainActivity
 import com.sassoapps.widgets.core.apps.toIntent
+import com.sassoapps.widgets.core.calendar.CalendarEvent
 import com.sassoapps.widgets.core.calendar.CalendarRepository
 import com.sassoapps.widgets.widgets.today.config.TodayConfigActivity
 
@@ -16,9 +17,10 @@ object TodayActions {
     fun clock(context: Context, config: TodayConfig): Intent? =
         config.clock.tapTarget.toIntent(context) { Intent(AlarmClock.ACTION_SHOW_ALARMS) }
 
-    fun event(context: Context, config: TodayConfig, data: TodayData): Intent? = when {
+    /** What tapping [event] opens; [event] is null when no event is showing. */
+    fun event(context: Context, config: TodayConfig, data: TodayData, event: CalendarEvent?): Intent? = when {
         !data.hasCalendarPermission -> Intent(context, MainActivity::class.java)
-        data.event != null && config.event.openEventOnTap -> CalendarRepository.viewEventIntent(data.event)
+        event != null && config.event.openEventOnTap -> CalendarRepository.viewEventIntent(event)
         else -> config.event.tapTarget.toIntent(context) { CalendarRepository.openCalendarIntent(data.now) }
     }
 

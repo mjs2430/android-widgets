@@ -30,6 +30,7 @@ import com.sassoapps.widgets.core.ui.SliderRow
 import com.sassoapps.widgets.core.ui.SwitchRow
 import com.sassoapps.widgets.core.ui.rememberPermissionState
 import com.sassoapps.widgets.core.weather.TemperatureUnit
+import com.sassoapps.widgets.widgets.today.ForecastKind
 import com.sassoapps.widgets.widgets.today.TodayConfig
 import com.sassoapps.widgets.widgets.today.WeatherConfig
 import kotlinx.coroutines.launch
@@ -57,17 +58,17 @@ internal fun WeatherTab(
         PlaceSearch(viewModel) { picked -> edit { it.copy(location = WeatherLocation.Fixed(picked)) } }
     }
     SettingsGroup("Show") {
-        SwitchRow("Current temperature", weather.showCurrent, { v -> edit { it.copy(showCurrent = v) } })
+        SwitchRow("Place name", weather.showPlaceName, { v -> edit { it.copy(showPlaceName = v) } }, subtitle = "e.g. Raleigh, NC")
         SwitchRow("Condition", weather.showCondition, { v -> edit { it.copy(showCondition = v) } }, subtitle = "e.g. Partly cloudy")
         SwitchRow("Today's high and low", weather.showHighLow, { v -> edit { it.copy(showHighLow = v) } })
-        SliderRow("Hourly forecast", weather.hourlyCount, 0..6, { v -> edit { it.copy(hourlyCount = v) } }) {
-            if (it == 0) "off" else "$it hours"
-        }
-        SliderRow("Daily forecast", weather.dailyCount, 0..5, { v -> edit { it.copy(dailyCount = v) } }) {
-            if (it == 0) "off" else "$it days"
+    }
+    SettingsGroup("Forecast") {
+        ChoiceRow("Show first", ForecastKind.entries, weather.forecast, { it.label }) { k -> edit { it.copy(forecast = k) } }
+        SliderRow("Items", weather.forecastCount, 0..6, { v -> edit { it.copy(forecastCount = v) } }) {
+            if (it == 0) "off" else "$it"
         }
         Text(
-            "Forecast strips appear when the widget is tall enough.",
+            "Tap the forecast on your home screen to switch between hourly and daily. Fewer items show when the widget is narrow, and the compact layout has none.",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )

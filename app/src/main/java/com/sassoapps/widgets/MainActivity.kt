@@ -106,7 +106,7 @@ private fun WidgetCard(widget: WidgetDefinition) {
                     .padding(12.dp),
                 contentAlignment = Alignment.Center,
             ) {
-                GlancePreview(key = widget.title, size = DpSize(maxWidth, 180.dp), content = widget.preview)
+                GlancePreview(key = widget.title, size = DpSize(maxWidth, 200.dp), content = widget.preview)
             }
             if (manager.isRequestPinAppWidgetSupported) {
                 Button(onClick = { manager.requestPinAppWidget(provider, null, null) }) { Text("Add to home screen") }

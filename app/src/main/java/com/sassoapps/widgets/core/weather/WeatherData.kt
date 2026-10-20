@@ -1,6 +1,10 @@
 package com.sassoapps.widgets.core.weather
 
 import androidx.core.text.util.LocalePreferences
+import java.time.Instant
+import java.time.ZoneId
+import java.time.temporal.ChronoUnit
+import kotlin.math.abs
 import kotlin.math.roundToInt
 import kotlinx.serialization.Serializable
 
@@ -45,6 +49,31 @@ data class WeatherData(
     val hourly: List<HourlyForecast>,
     val daily: List<DailyForecast>,
 )
+
+/** Conditions for the hour containing [now], so a forecast fetched earlier still shows the present. */
+fun WeatherData.currentAt(now: Long): CurrentWeather =
+    hourly.lastOrNull { it.time <= now && now - it.time < HOUR_MILLIS }
+        ?.let { CurrentWeather(it.tempC, it.condition, it.isNight) }
+        ?: current
+
+/** Hourly forecasts that start after [now]. */
+fun WeatherData.hourlyAfter(now: Long): List<HourlyForecast> = hourly.filter { it.time > now }
+
+/**
+ * [count] hourly forecasts every [stepHours] hours. The first is [stepHours] after the next full hour,
+ * so at 3:43 PM with a 2-hour step you get 6, 8 and 10 PM. Hours the forecast doesn't cover are left out.
+ */
+fun WeatherData.hourlyEvery(now: Long, stepHours: Int, count: Int, zone: ZoneId): List<HourlyForecast> {
+    val thisHour = Instant.ofEpochMilli(now).atZone(zone).truncatedTo(ChronoUnit.HOURS).toInstant().toEpochMilli()
+    val nextHour = if (thisHour == now) now else thisHour + HOUR_MILLIS
+    return (1..count).mapNotNull { step ->
+        val target = nextHour + step * stepHours * HOUR_MILLIS
+        // Zones off the UTC hour (e.g. +5:30) land between forecast entries, so take the nearest within half an hour.
+        hourly.minByOrNull { abs(it.time - target) }?.takeIf { abs(it.time - target) <= HOUR_MILLIS / 2 }
+    }
+}
+
+private const val HOUR_MILLIS = 60 * 60 * 1000L
 
 @Serializable
 enum class TemperatureUnit(val label: String) {

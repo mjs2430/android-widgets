@@ -15,22 +15,25 @@ import java.time.LocalDate
 data class TodayData(
     val now: Long,
     val hasCalendarPermission: Boolean,
-    val event: CalendarEvent?,
+    /** Upcoming events, soonest first; the widget lists them one at a time to scroll through. */
+    val events: List<CalendarEvent>,
     val place: Place?,
     val weather: WeatherData?,
 ) {
+    val event: CalendarEvent? get() = events.firstOrNull()
+
     companion object {
         suspend fun load(container: AppContainer, config: TodayConfig, now: Long = System.currentTimeMillis()): TodayData {
             val hasCalendar = container.calendar.hasPermission()
-            val event = if (hasCalendar && config.isVisible(TodaySection.EVENT)) {
-                val events = container.calendar.events(config.event.calendarIds, now, now + config.event.lookaheadHours * HOUR)
-                NextEvent.select(events, now, config.event.includeAllDay)
+            val events = if (hasCalendar && config.isVisible(TodaySection.EVENT)) {
+                val found = container.calendar.events(config.event.calendarIds, now, now + config.event.lookaheadHours * HOUR)
+                NextEvent.upcoming(found, now, config.event.includeAllDay).take(MAX_EVENTS)
             } else {
-                null
+                emptyList()
             }
             val place = if (config.isVisible(TodaySection.WEATHER)) container.location.resolve(config.weather.location) else null
             val weather = place?.let { container.weather.cached(it) }
-            return TodayData(now, hasCalendar, event, place, weather)
+            return TodayData(now, hasCalendar, events, place, weather)
         }
 
         /** Example data for the catalog preview on the app's home screen. */
@@ -45,12 +48,17 @@ data class TodayData(
             return TodayData(
                 now = now,
                 hasCalendarPermission = true,
-                event = CalendarEvent(0, 0, "Team sync", now + 2 * HOUR, now + 3 * HOUR, false, "Room 4", 0xFF4FC3F7.toInt(), false),
-                place = Place("Sample City", 0.0, 0.0),
+                events = listOf(
+                    CalendarEvent(0, 0, "Meet with contractors", now + 2 * HOUR, now + 3 * HOUR, false, "20 Flintlock Rd", 0xFF4FC3F7.toInt(), false),
+                ),
+                place = Place("Raleigh, NC", 0.0, 0.0),
                 weather = WeatherData(now, now, CurrentWeather(22.0, WeatherCondition.CLEAR, false), hourly, daily),
             )
         }
 
         private const val HOUR = 60 * 60 * 1000L
+
+        /** How many upcoming events the list holds. */
+        const val MAX_EVENTS = 10
     }
 }

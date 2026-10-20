@@ -28,24 +28,27 @@ class TodayWidget : GlanceAppWidget() {
         val appWidgetId = GlanceAppWidgetManager(context).getAppWidgetId(id)
         val initialConfig = container.todayConfigs.get(appWidgetId)
         val initialData = loadData(context, appWidgetId, initialConfig)
+        val initialUi = container.todayUi.get(appWidgetId)
 
         provideContent {
             val config by container.todayConfigs.flow(appWidgetId).collectAsState(initialConfig)
             val weatherCache by container.weather.changes.collectAsState(null)
             val devicePlace by container.location.changes.collectAsState(null)
+            val ui by container.todayUi.flow(appWidgetId).collectAsState(initialUi)
             var data by remember { mutableStateOf(initialData) }
 
             // Reload while the widget is open if its settings, forecast or location change.
             LaunchedEffect(config, weatherCache, devicePlace) {
                 data = loadData(context, appWidgetId, config)
             }
-            TodayContent(config, data, appWidgetId)
+            TodayContent(config, data, appWidgetId, ui)
         }
     }
 
     override suspend fun onDelete(context: Context, glanceId: GlanceId) {
         val appWidgetId = GlanceAppWidgetManager(context).getAppWidgetId(glanceId)
         context.appContainer.todayConfigs.delete(appWidgetId)
+        context.appContainer.todayUi.delete(appWidgetId)
         TodayScheduler.cancelTick(context, appWidgetId)
     }
 

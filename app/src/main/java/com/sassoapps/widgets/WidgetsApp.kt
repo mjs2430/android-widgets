@@ -9,6 +9,7 @@ import com.sassoapps.widgets.core.location.LocationRepository
 import com.sassoapps.widgets.core.weather.MetNorwayProvider
 import com.sassoapps.widgets.core.weather.WeatherRepository
 import com.sassoapps.widgets.widgets.today.TodayConfig
+import com.sassoapps.widgets.widgets.today.TodayUiStore
 import okhttp3.OkHttpClient
 
 class WidgetsApp : Application() {
@@ -25,6 +26,7 @@ class AppContainer(context: Context) {
     val weather = WeatherRepository(context, MetNorwayProvider(httpClient, BuildConfig.WEATHER_USER_AGENT))
 
     val todayConfigs = WidgetConfigStore(context, "today", TodayConfig.serializer(), ::TodayConfig)
+    val todayUi = TodayUiStore(context)
 }
 
 val Context.appContainer: AppContainer get() = (applicationContext as WidgetsApp).container

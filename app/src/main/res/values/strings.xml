@@ -2,5 +2,9 @@
     <string name="app_name">Sasso Widgets</string>
     <string name="today_widget_name">Today</string>
     <string name="today_widget_description">Clock, next event and weather in one glanceable widget.</string>
-    <string name="today_preview_sample">Team sync · 3:30 PM   ☀️ 72°</string>
+    <string name="today_preview_date">Sat, Oct 25</string>
+    <string name="today_preview_label">TODAY</string>
+    <string name="today_preview_event">Meet with contractors</string>
+    <string name="today_preview_place">Raleigh · Sunny</string>
+    <string name="today_preview_temp">☀️ 65°</string>
 </resources>

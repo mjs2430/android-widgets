@@ -3,6 +3,7 @@ package com.sassoapps.widgets.core.style
 import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceModifier
 import androidx.glance.ImageProvider
@@ -52,12 +53,14 @@ fun WidgetStyle.palette(context: Context): WidgetPalette {
 
 val FontChoice.glanceFamily: FontFamily get() = FontFamily(family)
 
-/** Rounds the widget's corners and paints its themed background at the current widget size. */
+/**
+ * Rounds the corners and paints the themed background. [size] is the area being painted:
+ * the whole widget by default, or one card of it.
+ */
 @Composable
-fun GlanceModifier.widgetBackground(style: WidgetStyle, palette: WidgetPalette): GlanceModifier {
+fun GlanceModifier.widgetBackground(style: WidgetStyle, palette: WidgetPalette, size: DpSize = LocalSize.current): GlanceModifier {
     val rounded = cornerRadius(style.cornerRadiusDp.dp)
     if (BackgroundRenderer.needsBitmap(style.theme)) {
-        val size = LocalSize.current
         val scale = LocalContext.current.resources.displayMetrics.density.coerceAtMost(MAX_RENDER_SCALE)
         val bitmap = BackgroundRenderer.render(style, size.width.value, size.height.value, scale)
         return rounded.background(ImageProvider(bitmap), ContentScale.FillBounds)

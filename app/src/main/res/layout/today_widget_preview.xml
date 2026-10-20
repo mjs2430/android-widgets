@@ -1,26 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Static preview shown in the launcher's widget picker. -->
+<!-- Static preview for the launcher's widget picker, laid out like the split layout. -->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/today_preview_background"
-    android:gravity="center_vertical"
-    android:orientation="vertical"
+    android:baselineAligned="false"
+    android:orientation="horizontal"
     android:padding="16dp">
 
-    <TextClock
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:fontFamily="sans-serif-light"
-        android:format12Hour="h:mm"
-        android:format24Hour="H:mm"
-        android:textColor="#FFFFFF"
-        android:textSize="44sp" />
+        android:layout_weight="1"
+        android:orientation="vertical">
 
-    <TextView
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/today_preview_date"
+            android:textColor="#CCFFFFFF"
+            android:textSize="14sp" />
+
+        <TextClock
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="sans-serif-light"
+            android:format12Hour="h:mm"
+            android:format24Hour="H:mm"
+            android:includeFontPadding="false"
+            android:textColor="#FFFFFF"
+            android:textSize="48sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:text="@string/today_preview_label"
+            android:textColor="#CCFFFFFF"
+            android:textSize="11sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:maxLines="1"
+            android:text="@string/today_preview_event"
+            android:textColor="#FFFFFF"
+            android:textSize="18sp" />
+    </LinearLayout>
+
+    <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/today_preview_sample"
-        android:textColor="#E6FFFFFF"
-        android:textSize="15sp" />
+        android:gravity="end"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/today_preview_place"
+            android:textColor="#FFFFFF"
+            android:textSize="13sp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/today_preview_temp"
+            android:textColor="#FFFFFF"
+            android:textSize="34sp" />
+    </LinearLayout>
 </LinearLayout>

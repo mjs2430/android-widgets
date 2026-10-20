@@ -5,7 +5,7 @@ import java.time.ZoneId
 import java.time.ZoneOffset
 import java.util.Locale
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class NextEventTest {
@@ -26,28 +26,28 @@ class NextEventTest {
             event("Later", at(15), at(16)),
             event("Soon", at(11), at(12)),
         )
-        assertEquals("Soon", NextEvent.select(events, now, includeAllDay = false)?.title)
+        assertEquals("Soon", NextEvent.upcoming(events, now, includeAllDay = false).firstOrNull()?.title)
     }
 
     @Test
     fun `ongoing events count until they end`() {
         val events = listOf(event("Ongoing", at(9, 30), at(10, 30)), event("Next", at(11), at(12)))
-        assertEquals("Ongoing", NextEvent.select(events, now, includeAllDay = false)?.title)
+        assertEquals("Ongoing", NextEvent.upcoming(events, now, includeAllDay = false).firstOrNull()?.title)
     }
 
     @Test
     fun `skips declined events`() {
         val events = listOf(event("Declined", at(11), at(12), declined = true), event("Accepted", at(13), at(14)))
-        assertEquals("Accepted", NextEvent.select(events, now, includeAllDay = false)?.title)
+        assertEquals("Accepted", NextEvent.upcoming(events, now, includeAllDay = false).firstOrNull()?.title)
     }
 
     @Test
     fun `all-day events only show when enabled and nothing timed is coming`() {
         val allDay = event("Holiday", at(0), at(0, day = 21), allDay = true)
-        assertNull(NextEvent.select(listOf(allDay), now, includeAllDay = false))
-        assertEquals("Holiday", NextEvent.select(listOf(allDay), now, includeAllDay = true)?.title)
+        assertTrue(NextEvent.upcoming(listOf(allDay), now, includeAllDay = false).isEmpty())
+        assertEquals("Holiday", NextEvent.upcoming(listOf(allDay), now, includeAllDay = true).firstOrNull()?.title)
         val timed = event("Meeting", at(14), at(15))
-        assertEquals("Meeting", NextEvent.select(listOf(allDay, timed), now, includeAllDay = true)?.title)
+        assertEquals("Meeting", NextEvent.upcoming(listOf(allDay, timed), now, includeAllDay = true).firstOrNull()?.title)
     }
 
     @Test
@@ -58,14 +58,34 @@ class NextEventTest {
     }
 
     @Test
-    fun `formats event times relative to today`() {
-        fun format(e: CalendarEvent, use24h: Boolean = false) = EventTimeFormatter.format(e, now, zone, use24h, Locale.US)
-        assertEquals("3:30 PM", format(event("A", at(15, 30), at(16))))
-        assertEquals("15:30", format(event("A", at(15, 30), at(16)), use24h = true))
-        assertEquals("Now · until 11:00 AM", format(event("A", at(9), at(11))))
-        assertEquals("Tomorrow 9:00 AM", format(event("A", at(9, day = 21), at(10, day = 21))))
-        assertEquals("Thu 9:00 AM", format(event("A", at(9, day = 22), at(10, day = 22))))
-        assertEquals("Today", format(event("A", at(0), at(0, day = 21), allDay = true)))
-        assertEquals("Tomorrow", format(event("A", at(0, day = 21), at(0, day = 22), allDay = true)))
+    fun `upcoming lists every event that has not ended, soonest first`() {
+        val events = listOf(event("Later", at(15), at(16)), event("Over", at(8), at(9)), event("Soon", at(11), at(12)))
+        assertEquals(listOf("Soon", "Later"), NextEvent.upcoming(events, now, includeAllDay = false).map { it.title })
+    }
+
+    @Test
+    fun `day labels say now, today, tomorrow, or the weekday`() {
+        fun label(e: CalendarEvent) = EventTimeFormatter.dayLabel(e, now, zone, Locale.US)
+        assertEquals("Now", label(event("A", at(9), at(11))))
+        assertEquals("Today", label(event("A", at(15), at(16))))
+        assertEquals("Tomorrow", label(event("A", at(9, day = 21), at(10, day = 21))))
+        assertEquals("Thursday", label(event("A", at(9, day = 22), at(10, day = 22))))
+        assertEquals("Today", label(event("A", at(0), at(0, day = 21), allDay = true)))
+    }
+
+    @Test
+    fun `time ranges follow the clock format`() {
+        fun range(e: CalendarEvent, use24h: Boolean) = EventTimeFormatter.timeRange(e, zone, use24h, Locale.US)
+        assertEquals("9:00 AM – 10:30 AM", range(event("A", at(9), at(10, 30)), use24h = false))
+        assertEquals("15:00 – 16:00", range(event("A", at(15), at(16)), use24h = true))
+        assertEquals("All day", range(event("A", at(0), at(0, day = 21), allDay = true), use24h = false))
+        assertEquals("Oct 22", EventTimeFormatter.date(event("A", at(9, day = 22), at(10, day = 22)), zone, Locale.US))
+    }
+
+    @Test
+    fun `an event with no end time shows only its start`() {
+        val noEnd = CalendarEvent(0, 0, "Dinner", at(18), at(19), false, null, 0, false, endKnown = false)
+        assertEquals("6:00 PM", EventTimeFormatter.timeRange(noEnd, zone, use24h = false, Locale.US))
+        assertEquals("6:00 PM – 7:00 PM", EventTimeFormatter.timeRange(noEnd.copy(endKnown = true), zone, use24h = false, Locale.US))
     }
 }

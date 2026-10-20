@@ -88,7 +88,7 @@ class TodayConfigViewModel(app: Application, val appWidgetId: Int) : AndroidView
 
 /** The parts of the config that change what data is loaded (as opposed to how it looks). */
 private fun TodayConfig.dataInputs() = listOf(
-    visibleSections,
+    hidden,
     event.calendarIds,
     event.lookaheadHours,
     event.includeAllDay,
