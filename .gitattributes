@@ -1,2 +1,5 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Unix shell script; CRLF breaks it on macOS, Linux and CI
+gradlew text eol=lf
