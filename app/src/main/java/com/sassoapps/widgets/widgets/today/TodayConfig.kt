@@ -70,7 +70,7 @@ data class EventConfig(
     val showCalendarColor: Boolean = true,
     /** Base size; the title, time and label scale from it. */
     val textSizeSp: Int = 15,
-    /** When true, tapping opens the event itself (like Pixel); otherwise [tapTarget]. */
+    /** When true, tapping opens the event itself (like Pixel), in [tapTarget] if one is chosen; otherwise [tapTarget] is just launched. */
     val openEventOnTap: Boolean = true,
     /** Default opens the default calendar app. */
     val tapTarget: LaunchTarget = LaunchTarget.Default,

@@ -76,9 +76,11 @@ internal fun CalendarTab(config: TodayConfig, viewModel: TodayConfigViewModel, u
     }
     SettingsGroup("Tap action") {
         SwitchRow("Open the event itself", event.openEventOnTap, { v -> edit { it.copy(openEventOnTap = v) } })
-        if (!event.openEventOnTap) {
-            LaunchTargetRow("Tapping the event opens", event.tapTarget, "Default calendar app") { t -> edit { it.copy(tapTarget = t) } }
-        }
+        LaunchTargetRow(
+            if (event.openEventOnTap) "Open events in" else "Tapping the event opens",
+            event.tapTarget,
+            "Default calendar app",
+        ) { t -> edit { it.copy(tapTarget = t) } }
     }
 }
 

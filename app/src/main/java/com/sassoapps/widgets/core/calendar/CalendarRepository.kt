@@ -153,13 +153,20 @@ class CalendarRepository(private val context: Context) {
 
         /** Opens the event in the user's calendar app. */
         fun viewEventIntent(event: CalendarEvent): Intent =
-            Intent(Intent.ACTION_VIEW, ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, event.eventId))
+            Intent(Intent.ACTION_VIEW)
+                // The type is set explicitly: launchers lack READ_CALENDAR, so they can't ask the provider for it,
+                // and an untyped intent matches no calendar app (or a chooser that never remembers "Always").
+                .setDataAndType(ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI, event.eventId), EVENT_MIME_TYPE)
                 .putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, event.begin)
                 .putExtra(CalendarContract.EXTRA_EVENT_END_TIME, event.end)
 
-        /** Opens the default calendar app at the current time. */
+        /** Opens the calendar app on the day of [now] (any time, not just the current one). */
         fun openCalendarIntent(now: Long = System.currentTimeMillis()): Intent =
-            Intent(Intent.ACTION_VIEW, CalendarContract.CONTENT_URI.buildUpon().appendPath("time").also { ContentUris.appendId(it, now) }.build())
+            Intent(Intent.ACTION_VIEW)
+                .setDataAndType(CalendarContract.CONTENT_URI.buildUpon().appendPath("time").also { ContentUris.appendId(it, now) }.build(), TIME_MIME_TYPE)
+
+        private const val EVENT_MIME_TYPE = "vnd.android.cursor.item/event"
+        private const val TIME_MIME_TYPE = "time/epoch"
     }
 }
 
